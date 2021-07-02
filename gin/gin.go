@@ -1,25 +1,23 @@
 package gin
 
 import (
-	"fmt"
 	"net/http"
 )
 
 // Custom request handler
-type HandlerFunc func(http.ResponseWriter, *http.Request)
+type HandlerFunc func(*Context)
 
 // Uniform handler for all http requests
 type Engine struct {
-	router map[string]HandlerFunc
+	router *Router
 }
 
 func New() *Engine {
-	return &Engine{router: make(map[string]HandlerFunc)}
+	return &Engine{router: newRouter()}
 }
 
 func (engine *Engine) addRoute(method string, pattern string, handler HandlerFunc) {
-	key := method + "-" + pattern // e.g. GET-/hello
-	engine.router[key] = handler
+	engine.router.addRoute(method, pattern, handler)
 }
 
 func (engine *Engine) GET(pattern string, handler HandlerFunc) {
@@ -41,12 +39,6 @@ func (engine *Engine) Run(port string) (err error) {
 // }
 func (engine *Engine) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 
-	key := request.Method + "-" + request.URL.Path
-
-	if handler, ok := engine.router[key]; ok { // ok is bool to indicate whether key exists https://blog.golang.org/maps
-		handler(writer, request)
-	} else {
-		fmt.Fprintf(writer, "404 NOT FOUND: %s\n", request.URL)
-	}
-
+	c := newContext(writer, request)
+	engine.router.handle(c)
 }
