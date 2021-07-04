@@ -33,12 +33,12 @@ func (engine *Engine) Run(port string) (err error) {
 	return http.ListenAndServe(port, engine)
 }
 
-// the defined function of handler
+// the defined function of handler:
 // type Handler interface {
 // 	ServeHTTP(ResponseWriter, *Request)
 // }
 func (engine *Engine) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 
-	c := newContext(writer, request)
+	c := newContext(writer, request) // for each http request, we will trigger new context. Serve in parallel
 	engine.router.handle(c)
 }

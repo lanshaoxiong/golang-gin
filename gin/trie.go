@@ -33,7 +33,9 @@ func (n *node) matchChildren(part string) []*node {
 }
 
 // insert new pattern(parts) into trie
-// corresponding to addRoute
+// corresponding to router.addRoute
+// pattern and parts are the path that we want to add into trie
+// height - current level of trie that traversed
 func (n *node) insert(pattern string, parts []string, height int) {
 	if len(parts) == height {
 		n.pattern = pattern
@@ -50,8 +52,9 @@ func (n *node) insert(pattern string, parts []string, height int) {
 	child.insert(pattern, parts, height+1)
 }
 
-// check whether trie has such parts
-// corresponding to getRoute
+// check whether trie has such parts. If so, return leaf node
+// corresponding to router.getRoute
+// parts is the pattern that we want to search in trie
 func (n *node) search(parts []string, height int) *node {
 	if len(parts) == height || strings.HasPrefix(n.part, "*") { // check whether current node is * node
 		if n.pattern == "" { // path is match, but we don't have handler for this path
